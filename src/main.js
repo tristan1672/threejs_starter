@@ -39,8 +39,8 @@ const windowHalfY = window.innerHeight / 2;
 init();
 
 function init() {
-  container = document.createElement("div");
-  document.body.appendChild(container);
+  container = document.getElementById("app");
+  //document.body.appendChild(container);
 
   //Camera Setup
   camera = new THREE.PerspectiveCamera(
@@ -99,7 +99,7 @@ function init() {
   //Renderer setup
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+  renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setAnimationLoop(animate);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -124,6 +124,17 @@ function init() {
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("keydown", onKeyPress);
   window.addEventListener("keyup", onKeyRelease);
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("app");
+    if (!container) {
+      console.error("Element with ID 'app' not found!");
+      return;
+    }
+
+    console.log("Container width:", container.clientWidth);
+    console.log("Container height:", container.clientHeight);
+  });
 }
 
 //Update loop
@@ -240,11 +251,9 @@ function onDocumentMouseMove(event) {
 
 //Resize
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  camera.aspect = container.clientWidth / container.clientHeight;
   camera.updateProjectionMatrix();
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render();
 }
 
 //Key press
