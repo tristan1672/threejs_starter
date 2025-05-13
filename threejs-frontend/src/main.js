@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { DragControls } from "three/addons/controls/DragControls.js";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
@@ -17,6 +18,10 @@ let enableSelection = false;
 
 let keysPressed = {};
 let flySpeed = 250;
+
+let currentShape = "cube";
+
+let settings;
 
 const clock = new THREE.Clock();
 const objects = [];
@@ -37,6 +42,7 @@ const windowHalfY = window.innerHeight / 2;
 //////////////////////////////////////////////////
 /////////////////////INIT/////////////////////////
 init();
+CreatePanel();
 
 function init() {
   container = document.getElementById("app");
@@ -69,6 +75,12 @@ function init() {
   dirLight.shadow.camera.left = -120;
   dirLight.shadow.camera.right = 120;
   scene.add(dirLight);
+
+  const geometryMap = {
+    cube: new THREE.BoxGeometry(),
+    sphere: new THREE.SphereGeometry(1, 32, 32),
+    torus: new THREE.TorusGeometry(1, 0.4, 32, 100),
+  };
 
   //Object Creation
   const geometry = new THREE.BoxGeometry(100, 32, 32);
@@ -145,7 +157,7 @@ function animate() {
   const t = (Math.sin(time) + 1) / 2; // oscillate t between 0 and 1
 
   //Color Interpolation
-  material.color.setHex(interpolateHexColor(colorStart, colorEnd, t));
+  //material.color.setHex(interpolateHexColor(colorStart, colorEnd, t));
 
   //mesh.rotation.x += 0.01;
   //mesh.rotation.y += 0.01;
@@ -159,6 +171,33 @@ function animate() {
 
   //Draw call
   renderer.render(scene, camera);
+}
+
+//////////////////////////////////////////////////////////////////
+/////////////////////////////GUI//////////////////////////////////
+
+function CreatePanel() {
+  const panel = new GUI({ width: 300 });
+
+  settings = {
+    color: "#ff0000",
+    shape: currentShape,
+    position: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+  };
+
+  const colorFolder = panel.addFolder("Color");
+  colorFolder.addColor(settings, "color").onChange((value) => {
+    material.color.set(value);
+  });
+
+  const shapeFolder = panel.addFolder("Shape");
+  const positionFolder = panel.addFolder("Position");
+
+  colorFolder.open();
 }
 
 //////////////////////////////////////////////////////////////////
