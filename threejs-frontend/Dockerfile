@@ -1,6 +1,6 @@
 FROM node:18 AS builder
 
-WORKDIR /threejs_starter
+WORKDIR /threejs-frontend
 
 COPY package*.json ./
 

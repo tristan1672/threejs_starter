@@ -1,11 +1,15 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  frontend:
+    build: ./threejs-frontend
     ports:
       - "5173:5173"
-    volumes:
-      - ./src:/app/src
     environment:
       - NODE_ENV=development
+    command: npm run dev
+  backend:
+    build: ./threejs-backend
+    ports:
+      - "3000:3000"
+    command: npm run start:dev
