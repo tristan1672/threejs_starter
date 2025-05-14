@@ -21,6 +21,8 @@ let flySpeed = 250;
 
 let currentShape = "cube";
 
+let geometryMap;
+
 let settings;
 
 const clock = new THREE.Clock();
@@ -31,7 +33,7 @@ const mouse = new THREE.Vector2(),
 const params = {
   asset: "Shroom",
 };
-const assets = ["Shroom", "morph_test"];
+//const assets = ["Shroom", "morph_test"];
 
 const colorStart = 0xff0000; // red
 const colorEnd = 0x0000ff; // blue
@@ -55,12 +57,12 @@ function init() {
     1,
     2000
   );
-  camera.position.set(100, 200, 300);
+  camera.position.set(100, 300, 300);
 
   //Scene Setup
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xa0a0a0);
-  scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
+  scene.fog = new THREE.Fog(0xa0a0a0, 200, 2000);
 
   //Lights
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 5);
@@ -76,10 +78,10 @@ function init() {
   dirLight.shadow.camera.right = 120;
   scene.add(dirLight);
 
-  const geometryMap = {
-    cube: new THREE.BoxGeometry(),
-    sphere: new THREE.SphereGeometry(1, 32, 32),
-    torus: new THREE.TorusGeometry(1, 0.4, 32, 100),
+  geometryMap = {
+    cube: new THREE.BoxGeometry(100, 32, 32),
+    sphere: new THREE.SphereGeometry(50, 32, 32),
+    torus: new THREE.TorusGeometry(30, 8, 32, 100),
   };
 
   //Object Creation
@@ -92,11 +94,11 @@ function init() {
     flatShading: false, // set to true for flat shading style
   });
 
-  material2 = new THREE.MeshBasicMaterial();
-  material2.color.set(0xf4f57);
+  //material2 = new THREE.MeshBasicMaterial();
+  //material2.color.set(0xf4f57);
 
   mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(100, 200, 5);
+  mesh.position.set(0, 100, 0);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   scene.add(mesh);
@@ -174,6 +176,28 @@ function animate() {
 }
 
 //////////////////////////////////////////////////////////////////
+//////////////////////////API CALLS///////////////////////////////
+function updateColor(color) {
+  fetch("http://localhost:3000/shape/color", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ color: color }),
+  });
+
+  console.log("fetch call: Color");
+}
+
+function updateShape(type) {
+  fetch("http://localhost:3000/shape/type", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: type }),
+  });
+
+  console.log("fetch call: Shape");
+}
+
+//////////////////////////////////////////////////////////////////
 /////////////////////////////GUI//////////////////////////////////
 
 function CreatePanel() {
@@ -192,12 +216,44 @@ function CreatePanel() {
   const colorFolder = panel.addFolder("Color");
   colorFolder.addColor(settings, "color").onChange((value) => {
     material.color.set(value);
+    updateColor(value);
   });
 
   const shapeFolder = panel.addFolder("Shape");
-  const positionFolder = panel.addFolder("Position");
+  shapeFolder
+    .add(settings, "shape", Object.keys(geometryMap))
+    .onChange((newShape) => {
+      // Remove old mesh
+      const x = mesh.position.x;
+      const y = mesh.position.y;
+      const z = mesh.position.z;
+      objects.pop(mesh);
+      scene.remove(mesh);
+
+      // Replace geometry
+      mesh = new THREE.Mesh(geometryMap[newShape], material);
+      mesh.position.set(x, y, z);
+
+      scene.add(mesh);
+      objects.push(mesh);
+      currentShape = newShape;
+
+      dragControl.dispose();
+      dragControl = new DragControls([...objects], camera, renderer.domElement);
+      dragControl.rotateSpeed = 2;
+
+      dragControl.addEventListener("dragstart", () => {
+        orbitalControl.enabled = false;
+      });
+      dragControl.addEventListener("dragend", () => {
+        orbitalControl.enabled = true;
+      });
+
+      updateShape(newShape);
+    });
 
   colorFolder.open();
+  shapeFolder.open();
 }
 
 //////////////////////////////////////////////////////////////////
@@ -248,6 +304,8 @@ function handleFlyControls(delta) {
   camera.position.addScaledVector(direction, speed);
   orbitalControl.target.addScaledVector(direction, speed);
 }
+
+//Init Controls
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////EVENTS//////////////////////////////////
