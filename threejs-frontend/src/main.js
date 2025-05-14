@@ -248,6 +248,7 @@ function setSelectedObject(obj) {
       },
       set color(val) {
         obj.material.color.set(val);
+        updateColor(val);
       },
     };
     panel.addColor(colorProxy, "color").name("Color");
@@ -279,6 +280,7 @@ function setSelectedObject(obj) {
 
       selectedObject = newMesh;
       setSelectedObject(newMesh); // rebind GUI
+      updateShape(newShape);
 
       dragControl.dispose();
       dragControl = new DragControls(objects, camera, renderer.domElement);
@@ -387,8 +389,8 @@ function onClick(event) {
     const intersections = raycaster.intersectObjects(objects, true);
 
     if (intersections.length > 0) {
-      const object = intersections[0].object;
-      setSelectedObject(object);
+      const target = intersections[0].object;
+      setSelectedObject(target);
 
       dragging = true;
       dragControl.enabled = true;
