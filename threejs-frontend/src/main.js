@@ -24,6 +24,10 @@ let currentShape = "cube";
 let geometryMap;
 
 let settings;
+let selectedObject = null;
+let objectFolder = null;
+let panel = null;
+let gui = null;
 
 const clock = new THREE.Clock();
 const objects = [];
@@ -201,46 +205,83 @@ function updateShape(type) {
 /////////////////////////////GUI//////////////////////////////////
 
 function CreatePanel() {
-  const panel = new GUI({ width: 300 });
+  gui = new GUI({ width: 300 });
 
-  settings = {
-    color: "#ff0000",
-    shape: currentShape,
-    position: {
-      x: 0,
-      y: 0,
-      z: 0,
+  // Create section
+  objectFolder = gui.addFolder("Objects");
+  objectFolder
+    .add({ CreateObject: createObject }, "CreateObject")
+    .name("Create Object");
+  objectFolder.open();
+
+  // Panel to show object-specific controls
+  panel = gui.addFolder("Object Properties");
+  panel.open();
+  setSelectedObject(mesh);
+}
+
+function setSelectedObject(obj) {
+  selectedObject = obj;
+
+  // Clear existing panel
+  if (panel) {
+    panel.destroy(); // lil-gui supports this
+  }
+
+  panel = gui.addFolder("Object Properties");
+
+  // Position controls
+  panel.add(obj.position, "x", -100, 100).name("Position X");
+  panel.add(obj.position, "y", -100, 100).name("Position Y");
+  panel.add(obj.position, "z", -100, 100).name("Position Z");
+
+  // Rotation controls
+  panel.add(obj.rotation, "x", 0, Math.PI * 2).name("Rotation X");
+  panel.add(obj.rotation, "y", 0, Math.PI * 2).name("Rotation Y");
+  panel.add(obj.rotation, "z", 0, Math.PI * 2).name("Rotation Z");
+
+  // Color (proxy getter/setter)
+  if (obj.material && obj.material.color) {
+    const colorProxy = {
+      get color() {
+        return `#${obj.material.color.getHexString()}`;
+      },
+      set color(val) {
+        obj.material.color.set(val);
+      },
+    };
+    panel.addColor(colorProxy, "color").name("Color");
+  }
+
+  // Shape (if needed)
+  const shapeProxy = {
+    get shape() {
+      return obj.userData.shape || "cube";
     },
-  };
+    set shape(newShape) {
+      // Replace geometry only
+      const newGeometry = geometryMap[newShape];
+      if (!newGeometry) return;
 
-  const colorFolder = panel.addFolder("Color");
-  colorFolder.addColor(settings, "color").onChange((value) => {
-    material.color.set(value);
-    updateColor(value);
-  });
+      const oldPos = obj.position.clone();
+      const oldRot = obj.rotation.clone();
 
-  const shapeFolder = panel.addFolder("Shape");
-  shapeFolder
-    .add(settings, "shape", Object.keys(geometryMap))
-    .onChange((newShape) => {
-      // Remove old mesh
-      const x = mesh.position.x;
-      const y = mesh.position.y;
-      const z = mesh.position.z;
-      objects.pop(mesh);
-      scene.remove(mesh);
+      const newMesh = new THREE.Mesh(newGeometry, obj.material.clone());
+      newMesh.position.copy(oldPos);
+      newMesh.rotation.copy(oldRot);
+      newMesh.userData.shape = newShape;
 
-      // Replace geometry
-      mesh = new THREE.Mesh(geometryMap[newShape], material);
-      mesh.position.set(x, y, z);
+      scene.remove(obj);
+      scene.add(newMesh);
 
-      scene.add(mesh);
-      objects.push(mesh);
-      currentShape = newShape;
+      const index = objects.indexOf(obj);
+      if (index !== -1) objects[index] = newMesh;
+
+      selectedObject = newMesh;
+      setSelectedObject(newMesh); // rebind GUI
 
       dragControl.dispose();
-      dragControl = new DragControls([...objects], camera, renderer.domElement);
-      dragControl.rotateSpeed = 2;
+      dragControl = new DragControls(objects, camera, renderer.domElement);
 
       dragControl.addEventListener("dragstart", () => {
         orbitalControl.enabled = false;
@@ -248,14 +289,12 @@ function CreatePanel() {
       dragControl.addEventListener("dragend", () => {
         orbitalControl.enabled = true;
       });
+    },
+  };
+  panel.add(shapeProxy, "shape", Object.keys(geometryMap)).name("Shape");
 
-      updateShape(newShape);
-    });
-
-  colorFolder.open();
-  shapeFolder.open();
+  panel.open();
 }
-
 //////////////////////////////////////////////////////////////////
 ////////////////////////////HELPER////////////////////////////////
 
@@ -305,7 +344,29 @@ function handleFlyControls(delta) {
   orbitalControl.target.addScaledVector(direction, speed);
 }
 
-//Init Controls
+function createObject() {
+  const geometry = geometryMap["cube"];
+  const newMesh = new THREE.Mesh(geometry, material.clone());
+  newMesh.position.set(Math.random() * 100 - 50, 10, Math.random() * 100 - 50);
+  newMesh.castShadow = true;
+  newMesh.receiveShadow = true;
+  newMesh.userData.shape = "cube";
+  scene.add(newMesh);
+  objects.push(newMesh);
+
+  setSelectedObject(newMesh);
+
+  dragControl.dispose();
+  dragControl = new DragControls([...objects], camera, renderer.domElement);
+  dragControl.rotateSpeed = 2;
+
+  dragControl.addEventListener("dragstart", () => {
+    orbitalControl.enabled = false;
+  });
+  dragControl.addEventListener("dragend", () => {
+    orbitalControl.enabled = true;
+  });
+}
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////EVENTS//////////////////////////////////
@@ -327,6 +388,8 @@ function onClick(event) {
 
     if (intersections.length > 0) {
       const object = intersections[0].object;
+      setSelectedObject(object);
+
       dragging = true;
       dragControl.enabled = true;
       orbitalControl.enabled = false;
