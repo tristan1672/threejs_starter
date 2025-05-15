@@ -31,14 +31,14 @@ export class ShapeController {
   }
 
   @Patch('color')
-  changeColor(@Body() body: UpdateColorDto) {
+  changeColor(@Body() body: { color: string }) {
     console.log(`Color changed to: ${body.color}`);
     this.shapeService.publishColor(body);
     return { success: true };
   }
 
   @Patch('type')
-  changeShape(@Body() body: UpdateShapeDto) {
+  changeShape(@Body() body: { type: string }) {
     console.log(`Shape changed to: ${body.type}`);
     return { success: true };
   }
