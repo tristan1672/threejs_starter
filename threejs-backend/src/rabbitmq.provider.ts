@@ -1,21 +1,23 @@
 import { Provider } from '@nestjs/common';
 import * as amqp from 'amqplib';
 
+/*
+
+run rabbitmq:
+
+docker run -d --hostname rabbitmq --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+
+*/
+
 export const RabbitMQProvider: Provider = {
   provide: 'RABBITMQ_CHANNEL',
   useFactory: async () => {
     try {
-      const connection = await amqp.connect('amqp://rabbitmq');
+      const connection = await amqp.connect('amqp://localhost:5672');
       console.log('Connected to RabbitMQ');
       const channel = await connection.createChannel();
       await channel.assertExchange('scene.events', 'topic', { durable: false });
       console.log('Exchange asserted');
-
-      // Optional: handle app shutdown
-      process.on('SIGINT', async () => {
-        await channel.close();
-        await connection.close();
-      });
 
       return channel;
     } catch (err) {
