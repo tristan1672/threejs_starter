@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Channel } from 'amqplib';
-import { UpdateColorDto } from './dto/update-color.dto';
+import { UpdateDto } from './dto/update-color.dto';
 
 @Injectable()
 export class ShapeService {
@@ -22,14 +22,27 @@ export class ShapeService {
 
   constructor(@Inject('RABBITMQ_CHANNEL') private readonly channel: Channel) {}
 
-  publishColor(UpdateColorDto: UpdateColorDto) {
-    const { color } = UpdateColorDto;
-    const routingKey = `color.changed.${color}`;
+  publishColor(UpdateDto: UpdateDto) {
+    const { color } = UpdateDto;
+    const { type } = UpdateDto;
+    const routingKey = `scene.color.updated.${type}.${color}`;
 
     this.channel.publish(
       'scene.events', // exchange name
       routingKey, // routing key
       Buffer.from(JSON.stringify({ color })),
+    );
+  }
+
+  publishShape(UpdateDto: UpdateDto) {
+    const { color } = UpdateDto;
+    const { type } = UpdateDto;
+    const routingKey = `scene.shape.updated.${type}.${color}`;
+
+    this.channel.publish(
+      'scene.events', // exchange name
+      routingKey, // routing key
+      Buffer.from(JSON.stringify({ type })),
     );
   }
 }

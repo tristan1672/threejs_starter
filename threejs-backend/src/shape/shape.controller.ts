@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ShapeService } from './shape.service';
 import { UpdateShapeDto } from './dto/update-shape.dto';
-import { UpdateColorDto } from './dto/update-color.dto';
+import { UpdateDto } from './dto/update-color.dto';
 
 @Controller('shape')
 export class ShapeController {
@@ -31,14 +31,14 @@ export class ShapeController {
   }
 
   @Patch('color')
-  changeColor(@Body() body: { color: string }) {
+  changeColor(@Body() body: { type: string; color: string }) {
     console.log(`Color changed to: ${body.color}`);
     this.shapeService.publishColor(body);
     return { success: true };
   }
 
   @Patch('type')
-  changeShape(@Body() body: { type: string }) {
+  changeShape(@Body() body: { type: string; color: string }) {
     console.log(`Shape changed to: ${body.type}`);
     return { success: true };
   }

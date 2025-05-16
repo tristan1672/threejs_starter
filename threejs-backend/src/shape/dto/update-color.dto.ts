@@ -1,3 +1,4 @@
-export class UpdateColorDto {
+export class UpdateDto {
+  type: string;
   color: string;
 }
