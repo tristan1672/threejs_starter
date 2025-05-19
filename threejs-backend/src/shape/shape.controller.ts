@@ -40,6 +40,7 @@ export class ShapeController {
   @Patch('type')
   changeShape(@Body() body: { type: string; color: string }) {
     console.log(`Shape changed to: ${body.type}`);
+    this.shapeService.publishShape(body);
     return { success: true };
   }
 }

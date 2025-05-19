@@ -181,21 +181,21 @@ function animate() {
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////API CALLS///////////////////////////////
-function updateColor(color) {
-  fetch("http://localhost:3000/shape/color", {
+function updateColor(type, color) {
+  fetch("http://localhost:3001/shape/color", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ color: color }),
+    body: JSON.stringify({ type: type, color: color }),
   });
 
   console.log("fetch call: Color");
 }
 
-function updateShape(type) {
-  fetch("http://localhost:3000/shape/type", {
+function updateShape(type, color) {
+  fetch("http://localhost:3001/shape/type", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: type }),
+    body: JSON.stringify({ type: type, color: color }),
   });
 
   console.log("fetch call: Shape");
@@ -248,7 +248,8 @@ function setSelectedObject(obj) {
       },
       set color(val) {
         obj.material.color.set(val);
-        updateColor(val);
+        const Shape = obj.userData.shape;
+        updateColor(Shape, val);
       },
     };
     panel.addColor(colorProxy, "color").name("Color");
@@ -280,7 +281,9 @@ function setSelectedObject(obj) {
 
       selectedObject = newMesh;
       setSelectedObject(newMesh); // rebind GUI
-      updateShape(newShape);
+
+      const newColor = `#${obj.material.color.getHexString()}`;
+      updateShape(newShape, newColor);
 
       dragControl.dispose();
       dragControl = new DragControls(objects, camera, renderer.domElement);

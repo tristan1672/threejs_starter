@@ -26,7 +26,9 @@ export class ShapeService {
     const { color } = UpdateDto;
     const { type } = UpdateDto;
     const routingKey = `scene.color.updated.${type}.${color}`;
-
+    console.log(
+      `[Publish Color] Routing Key: ${routingKey}, Payload: ${JSON.stringify({ color })}`,
+    );
     this.channel.publish(
       'scene.events', // exchange name
       routingKey, // routing key
@@ -38,6 +40,9 @@ export class ShapeService {
     const { color } = UpdateDto;
     const { type } = UpdateDto;
     const routingKey = `scene.shape.updated.${type}.${color}`;
+    console.log(
+      `[Publish Shape] Routing Key: ${routingKey}, Payload: ${JSON.stringify({ type })}`,
+    );
 
     this.channel.publish(
       'scene.events', // exchange name

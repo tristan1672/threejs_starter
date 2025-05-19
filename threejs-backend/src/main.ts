@@ -12,7 +12,7 @@ async function bootstrap() {
 
   //const channel = await connectToRabbitMQ();
 
-  await app.listen(3000);
+  await app.listen(3001);
   console.log('Initialized');
 }
 
