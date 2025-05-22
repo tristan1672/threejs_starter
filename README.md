@@ -24,8 +24,11 @@ Description:
 -raycast object dragging and augmented controls
 
 Controls:
+
 -Basic orbital controls : scroll wheel to zoom in and out, left click onto world to rotate, right click onto world for axis movement
+
 -Augmented flying controls : W A S D for forward backward left right movement
+
 -Picking and Dragging : Left click/Scrollwheel click hold on object allows object position dragging, Right click hold on object allows object rotational dragging
 
 Known Bugs:
@@ -33,6 +36,12 @@ Known Bugs:
 
 How to run:
 -Clone repository
+
 -cd threejs-backend, npm run start:dev
+
 -cd ../threejs-frontend, npm run dev
+
 -click onto any of the vite URLs to access threejs interface
+
+Diagram
+![image](https://github.com/user-attachments/assets/92dcca36-bc85-4462-96f3-5989d3fb748b)
