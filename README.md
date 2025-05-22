@@ -30,3 +30,9 @@ Controls:
 
 Known Bugs:
 -After creating new object through panel, clicking object does not focus panel updates to selected object. Panel will only modify latest created object.
+
+How to run:
+-Clone repository
+-cd threejs-backend, npm run start:dev
+-cd ../threejs-frontend, npm run dev
+-click onto any of the vite URLs to access threejs interface
