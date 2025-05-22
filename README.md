@@ -43,5 +43,6 @@ How to run:
 
 -click onto any of the vite URLs to access threejs interface
 
-Diagram
+
+**Diagram**
 ![image](https://github.com/user-attachments/assets/92dcca36-bc85-4462-96f3-5989d3fb748b)
