@@ -32,7 +32,7 @@ export class ShapeService {
     this.channel.publish(
       'scene.events', // exchange name
       routingKey, // routing key
-      Buffer.from(JSON.stringify({ color })),
+      Buffer.from(JSON.stringify({ type, color })),
     );
   }
 
@@ -47,7 +47,7 @@ export class ShapeService {
     this.channel.publish(
       'scene.events', // exchange name
       routingKey, // routing key
-      Buffer.from(JSON.stringify({ type })),
+      Buffer.from(JSON.stringify({ type, color })),
     );
   }
 }
