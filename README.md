@@ -10,11 +10,13 @@ rabbitMQ broker to the rest of the projects. Main events that are published are 
 color changes.
 
 Inter-project communication POC
-frontend edge device: https://github.com/tristan1672/sveltekit-starter - running locally
+frontend edge device: https://github.com/tristan1672/sveltekit-starter/tree/ED-Web - running locally
 
-backend conduit server: https://github.com/tristan1672/PERN-Docker-Project/tree/rabbitMQ-to-threeJS_project
+backend conduit server: https://github.com/tristan1672/PERN-Docker-Project/tree/ED-Server - ran on docker
 
-event input interface: https://github.com/tristan1672/threejs_starter/tree/simple_backend_example
+rabbit mq - ran on docker
+
+event input interface: https://github.com/tristan1672/threejs_starter/tree/ED-Input - ran locally
 
 Description:
 -threejs frontend that renders basic geometry with phong shaded materials
@@ -36,13 +38,10 @@ Known Bugs:
 
 How to run:
 -Clone repository
-
--cd threejs-backend, npm run start:dev
-
--cd ../threejs-frontend, npm run dev
+-npm run start (concurrently installed)
 
 -click onto any of the vite URLs to access threejs interface
 
 
 **Diagram**
-![image](https://github.com/user-attachments/assets/92dcca36-bc85-4462-96f3-5989d3fb748b)
+![Inter-project Communications-Simple drawio](https://github.com/user-attachments/assets/c3656a16-d4ad-49a1-a116-29731f1fcce3)
