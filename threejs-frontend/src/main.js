@@ -6,6 +6,7 @@ import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 
 ////////////////////////////////////////////////////
 ////////////////////////DEFINES/////////////////////
+const __EDITOR__ = true;
 const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
 
@@ -48,7 +49,10 @@ const windowHalfY = window.innerHeight / 2;
 //////////////////////////////////////////////////
 /////////////////////INIT/////////////////////////
 init();
-CreatePanel();
+
+if (__EDITOR__) {
+  CreatePanel();
+}
 
 function init() {
   container = document.getElementById("app");
@@ -123,36 +127,38 @@ function init() {
   renderer.shadowMap.type = THREE.PCFShadowMap;
   container.appendChild(renderer.domElement);
 
-  //Controls
-  dragControl = new DragControls([...objects], camera, renderer.domElement);
-  dragControl.rotateSpeed = 2;
+  if (__EDITOR__) {
+    //Controls
+    dragControl = new DragControls([...objects], camera, renderer.domElement);
+    dragControl.rotateSpeed = 2;
 
-  orbitalControl = new OrbitControls(camera, renderer.domElement);
-  orbitalControl.enabled = true;
-
-  dragControl.addEventListener("dragstart", () => {
-    orbitalControl.enabled = false;
-  });
-  dragControl.addEventListener("dragend", () => {
+    orbitalControl = new OrbitControls(camera, renderer.domElement);
     orbitalControl.enabled = true;
-  });
 
-  // add event listener to highlight dragged objects
-  document.addEventListener("click", onClick);
-  window.addEventListener("resize", onWindowResize);
-  window.addEventListener("keydown", onKeyPress);
-  window.addEventListener("keyup", onKeyRelease);
+    dragControl.addEventListener("dragstart", () => {
+      orbitalControl.enabled = false;
+    });
+    dragControl.addEventListener("dragend", () => {
+      orbitalControl.enabled = true;
+    });
 
-  window.addEventListener("DOMContentLoaded", () => {
-    const container = document.getElementById("app");
-    if (!container) {
-      console.error("Element with ID 'app' not found!");
-      return;
-    }
+    // add event listener to highlight dragged objects
+    document.addEventListener("click", onClick);
+    window.addEventListener("resize", onWindowResize);
+    window.addEventListener("keydown", onKeyPress);
+    window.addEventListener("keyup", onKeyRelease);
 
-    console.log("Container width:", container.clientWidth);
-    console.log("Container height:", container.clientHeight);
-  });
+    window.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("app");
+      if (!container) {
+        console.error("Element with ID 'app' not found!");
+        return;
+      }
+
+      console.log("Container width:", container.clientWidth);
+      console.log("Container height:", container.clientHeight);
+    });
+  }
 }
 
 //Update loop
@@ -168,12 +174,14 @@ function animate() {
   //mesh.rotation.x += 0.01;
   //mesh.rotation.y += 0.01;
 
-  //Control Updates
-  if (orbitalControl.enabled) {
-    orbitalControl.update();
-  }
+  if (__EDITOR__) {
+    //Control Updates
+    if (orbitalControl.enabled) {
+      orbitalControl.update();
+    }
 
-  handleFlyControls(delta);
+    handleFlyControls(delta);
+  }
 
   //Draw call
   renderer.render(scene, camera);
