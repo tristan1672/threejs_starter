@@ -1,0 +1,13 @@
+{
+  "name": "threejs_starter",
+  "version": "1.0.0",
+  "description": "A threejs-starter project with a simple nestjs backend and a rabbitMQ message broker that listens\r and publishes events from frontend interactions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run dev --prefix threejs-frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
